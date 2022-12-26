@@ -1,57 +1,54 @@
 import streamlit as st
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sb
+import joblib
 
-def run_eda_app() :
 
-    df = pd.read_csv('diabetes_data.csv')
+def run_ml_app() : 
+    st.subheader('당뇨병 발병 예측')
+    # 성별은 여자이고, 나이는 50이며, 연봉은 4만달러, 카드빛 5만달러, 자산은 20만달러 이 사람은 얼마짜리 차를 구매할까?
     
-    
-    st.subheader('데이터 프레임 확인')
-    st.dataframe(df.head(3))
-    
-    st.subheader('기본 통계 데이터')
-    
-    st.dataframe(df.describe())
+    # 성별, 나이, 연봉, 카드빛, 자산을 유저한테 모두 입력받아서
+    # 자동차 구매 금액 예측하세요.
 
-    # 컬럼을 선택할 수 있게 한다. 하나의 컬럼을 선택하면, 
-    # 해당컬럼의 최댓값 최솟값 데이터를 화면에 보여준다.
-    st.subheader('최대 / 최소 데이터 확인하기')
-    
-    column_list = df.columns[4: ]
+    gender = st.radio('성별 선택' ,['여자', '남자'])
+    if gender == '여자' :
+        gender = 0
+    else :
+        gender = 1
 
-    selected_column = st.selectbox('컬럼을 선택하세요' , column_list)
-    
-    df_min =df.loc[df[selected_column] ==df[selected_column].min(), ]
-    df_max =df.loc[df[selected_column] ==df[selected_column].max(), ]
-    
-    st.text('최대값')
-    st.dataframe(df_max)
-    st.text('최소값')
-    st.dataframe(df_min)
+    age = st.number_input('연령 입력' , 18,100)
 
-    # 선택한 컬럼에 대한 히스토그램
-    st.subheader('컬럼 별 히스토그램')
-    
-    histogram_column = st.selectbox('히스토그램 확인할 컬럼을 선택하세요', column_list)
-    my_bins = st.number_input('빈의 갯수를 입력하세요', 10, 30, value=10,step=1)
-    
-    fig1 = plt.figure()
-    plt.hist(data=df , x= histogram_column , bins= my_bins ,rwidth=0.8)
-    plt.title
-    st.pyplot(fig1)
+    HighChol = st.number_input('고 콜레스테롤 입력', 10000,1000000)
+
+    BMI = st.number_input('체질량 지수 입력', 0 ,1000000)    
+
+    Smoker = st.number_input('흡연 여부 입력' , 20000,10000000)
+
+    HeartDiseaseorAttack = st.number_input('심장병 여부 입력' , 20000,10000000)
+
+    PhysActivity = st.number_input('신체활동 여부 입력' , 20000,10000000)
+
+    Fruits = st.number_input('과일 섭취 여부 입력' , 20000,10000000)
+
+    Veggies = st.number_input('채소 섭취 여부 입력' , 20000,10000000)
+
+    HvyAlcoholConsump= st.number_input('음주 여부 입력' , 20000,10000000) 
+
+    GenHlth = st.number_input('평소 건강상태 입력' , 20000,10000000)
+
+    MentHlth = st.number_input('정신 건강 척도 입력' , 20000,10000000)
+
+    HighBP = st.number_input('뇌졸중 여부 입력' , 20000,10000000)
 
 
 
-    st.subheader('상관 관계 분석')
 
-    selected_list = st.multiselect('상관분석을 하고싶은 컬럼을 선택하세요', column_list)
-
-    df.corr()
-    df_corr = df[selected_list].corr()
+    new_data = np.array([gender,age,HighChol,BMI,Smoker,HeartDiseaseorAttack,PhysActivity,Fruits,Veggies,HvyAlcoholConsump,GenHlth,MentHlth,HighBP])
     
-    fig2 = plt.figure()
-    sb.heatmap(data= df_corr,annot=True, fmt='.2f', cmap='coolwarm', vmin= -1, vmax= 1, linewidths=0.5)
-    st.pyplot(fig2)
+    new_data=new_data.reshape(1,13)
+
+    classifier = joblib.load('classifier.pkl')    
+    
+    y_pred = classifier.predict(new_data)
+
+    y_pred = round(y_pred[0],1)
